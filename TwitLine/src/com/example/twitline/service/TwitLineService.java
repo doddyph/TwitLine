@@ -9,6 +9,7 @@ import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
 import com.example.twitline.R;
+import com.example.twitline.db.TwitLineContentProvider;
 import com.example.twitline.entity.TweetStatus;
 import com.example.twitline.util.Utils;
 
@@ -76,7 +77,7 @@ public class TwitLineService extends IntentService {
 					i++;
 				}
 				
-//				getContentResolver().bulkInsert(url, values);
+				getContentResolver().bulkInsert(TwitLineContentProvider.INFO_URI, values);
 				success = true;
 			}
 			

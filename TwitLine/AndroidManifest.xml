@@ -28,6 +28,11 @@
         
         <service android:name="com.example.twitline.service.TwitLineService"></service>
         
+        <provider android:name="com.example.twitline.db.TwitLineContentProvider"
+            android:authorities="com.example.twitline"
+            android:exported="false" >
+        </provider>
+        
     </application>
 
 </manifest>

@@ -15,7 +15,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		db.execSQL("CREATE TABLE info ( _id INTEGER AUTO INCREMENT PRIMARY KEY, " +
+		db.execSQL("CREATE TABLE status ( _id INTEGER AUTO INCREMENT PRIMARY KEY, " +
 				" imageurl TEXT," +
 				" name TEXT," +
 				" screenname TEXT," +

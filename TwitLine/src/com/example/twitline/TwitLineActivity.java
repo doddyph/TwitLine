@@ -4,29 +4,46 @@ import com.example.twitline.service.TwitLineService;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.view.Menu;
 import android.widget.Toast;
 
 public class TwitLineActivity extends Activity {
+	
+	private TimelineFragment mTimelineFragment;
 	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Bundle extras = intent.getExtras();
-			String text = extras.getString("result");
-			Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+			boolean success = extras.getBoolean("result");
+			
+			if (success) {
+				Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+				mTimelineFragment.loadStatus();
+			}
+			
+//			String text = extras.getString("result");
+//			Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
 		}
 	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+//		setContentView(R.layout.activity_main);
+		
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		
+		mTimelineFragment = new TimelineFragment();
+		ft.replace(android.R.id.content, mTimelineFragment);
+		ft.commit();
 	}
 	
 	@Override
@@ -42,13 +59,6 @@ public class TwitLineActivity extends Activity {
 	protected void onStop() {
 		super.onStop();
 		unregisterReceiver(receiver);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
 	}
 
 }

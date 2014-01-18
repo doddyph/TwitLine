@@ -82,7 +82,7 @@ public class TwitLineService extends IntentService {
 			}
 			
 			if (success) {
-				sendBroadcast(new Intent("TwitLine").putExtra("result", "success"));
+				sendBroadcast(new Intent("TwitLine").putExtra("result", true));
 			}
 		}
 		

@@ -42,9 +42,9 @@ public final class R {
         public static final int details_user_name=0x7f090004;
         public static final int details_user_screen_name=0x7f090005;
         public static final int details_user_status=0x7f090006;
-        public static final int listview=0x7f09000c;
+        public static final int listview=0x7f09000b;
         public static final int menu_refresh=0x7f09000d;
-        public static final int progressbar=0x7f09000b;
+        public static final int progressbar=0x7f09000c;
         public static final int timeline_container=0x7f090000;
         public static final int user_image=0x7f090008;
         public static final int user_name=0x7f090009;

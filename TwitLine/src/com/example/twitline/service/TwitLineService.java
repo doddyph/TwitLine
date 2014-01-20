@@ -19,6 +19,11 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 public class TwitLineService extends IntentService {
+	
+	public static final int STATE_INIT 	= 0x00;
+	public static final int STATE_SUCCESS 	= 0x01;
+	public static final int STATE_FAILED 	= 0x02;
+	public static int SERVIVE_STATE = STATE_INIT;
 
 	public TwitLineService() {
 		super("TwitLine Service");
@@ -27,6 +32,7 @@ public class TwitLineService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		getContentResolver().delete(TwitLineContentProvider.INFO_URI, null, null);
+		SERVIVE_STATE = STATE_INIT;
 		new LoadTweetTask().execute();
 	}
 
@@ -82,7 +88,11 @@ public class TwitLineService extends IntentService {
 			}
 			
 			if (success) {
+				SERVIVE_STATE = STATE_SUCCESS;
 				sendBroadcast(new Intent("TwitLine").putExtra("result", true));
+			}
+			else {
+				SERVIVE_STATE = STATE_FAILED;
 			}
 		}
 		

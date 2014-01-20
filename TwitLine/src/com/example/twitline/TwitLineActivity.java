@@ -1,5 +1,7 @@
 package com.example.twitline;
 
+import com.example.twitline.service.TwitLineService;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -8,11 +10,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.widget.Toast;
+import android.content.res.Configuration;
+import android.view.View;
 
 public class TwitLineActivity extends Activity {
 	
 	private TimelineFragment mTimelineFragment;
+	private DetailsFragment mDetailsFragment;
 	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		
@@ -22,26 +26,17 @@ public class TwitLineActivity extends Activity {
 			boolean success = extras.getBoolean("result");
 			
 			if (success) {
-				Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+//				Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+				mTimelineFragment.setProgressBarVisibility(View.GONE);
 				mTimelineFragment.loadStatus();
 			}
-			
-//			String text = extras.getString("result");
-//			Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
 		}
 	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		setContentView(R.layout.activity_main);
-		
-		FragmentManager fm = getFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-		
-		mTimelineFragment = new TimelineFragment();
-		ft.replace(android.R.id.content, mTimelineFragment);
-		ft.commit();
+		setContentView();
 	}
 	
 	@Override
@@ -54,6 +49,35 @@ public class TwitLineActivity extends Activity {
 	protected void onStop() {
 		super.onStop();
 		unregisterReceiver(receiver);
+		TwitLineService.SERVIVE_STATE = TwitLineService.STATE_INIT;
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		setContentView();
+	}
+	
+	private void setContentView() {
+		setContentView(R.layout.activity_main);
+		
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		
+		
+		if (findViewById(R.id.details_container) != null) {//landscape mode
+			mTimelineFragment = new TimelineFragment();
+			ft.replace(R.id.timeline_container, mTimelineFragment);
+			
+			mDetailsFragment = new DetailsFragment();
+			ft.replace(R.id.details_container, mDetailsFragment);
+		}
+		else {//portrait mode
+			mTimelineFragment = new TimelineFragment();
+			ft.replace(R.id.timeline_container, mTimelineFragment);
+		}
+		
+		ft.commit();
 	}
 
 }

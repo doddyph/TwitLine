@@ -8,39 +8,33 @@ import com.example.twitline.entity.TweetStatus;
 import com.example.twitline.service.TwitLineService;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
-public class TimelineFragment extends Fragment {
+public class TimelineFragment extends Fragment implements OnItemClickListener {
 	
 	private StatusAdapter mStatusAdapter;
 	private ListView mListView;
-	private ArrayList<TweetStatus> statusList;
-	
-	private static final String KEY = "statuslist";
+	private ProgressBar mProgressBar;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Log.v("TimelineFragment", "onCreate() savedInstanceState: "+savedInstanceState);
-		if (savedInstanceState != null) {
-			statusList = (ArrayList<TweetStatus>) savedInstanceState.getSerializable(KEY);
-		}
-		else {
-			statusList = new ArrayList<TweetStatus>();
-		}
-		Log.v("TimelineFragment", "onCreate() statusList size: "+statusList.size());
 	}
 
 	@Override
@@ -51,9 +45,10 @@ public class TimelineFragment extends Fragment {
 
 		View view = inflater.inflate(R.layout.timeline_fragment, container, false);
 		mListView = (ListView) view.findViewById(R.id.listview);
+		mProgressBar = (ProgressBar) view.findViewById(R.id.progressbar); 
 		
-		Log.v("TimelineFragment", "onCreateView() statusList size: "+statusList.size());
-		mStatusAdapter = new StatusAdapter(getActivity(), statusList);
+		mListView.setOnItemClickListener(this);
+		mStatusAdapter = new StatusAdapter(getActivity());
 		mListView.setAdapter(mStatusAdapter);
 		
 		return view;
@@ -70,8 +65,7 @@ public class TimelineFragment extends Fragment {
 		
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
-			Intent i = new Intent(getActivity(), TwitLineService.class);
-			getActivity().startService(i);
+			startService();
 			return true;
 
 		default:
@@ -82,28 +76,60 @@ public class TimelineFragment extends Fragment {
 	}
 	
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Log.v("TimelineFragment", "onSaveInstanceState() statusList size: "+statusList.size());
-		outState.putSerializable(KEY, statusList);
-	}
-	
-	@Override
 	public void onResume() {
 		super.onResume();
 		
-		Log.v("TimelineFragment", "onResume() statusList size: "+statusList.size());
-		if (statusList.size() == 0) {
-			// TODO
-			loadStatus();
-			Intent i = new Intent(getActivity(), TwitLineService.class);
-			getActivity().startService(i);
+		loadStatus();
+		
+		switch (TwitLineService.SERVIVE_STATE) {
+		case TwitLineService.STATE_INIT:
+		case TwitLineService.STATE_FAILED:
+			startService();
+			break;
 		}
 	}
 	
+	private void startService() {
+		Intent i = new Intent(getActivity(), TwitLineService.class);
+		getActivity().startService(i);
+		setProgressBarVisibility(View.VISIBLE);
+	}
+	
+	public void setProgressBarVisibility(int visible) {
+		mProgressBar.setVisibility(visible);
+	}
+	
 	public void loadStatus() {
-		Log.v("TimelineFragment", "loadStatus()");
 		new LoadStatusTask().execute();
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> a, View v, int position, long id) {
+		
+		TweetStatus item = (TweetStatus) mListView.getItemAtPosition(position);
+		
+		Bundle args = new Bundle();
+		args.putString(DetailsFragment.KEY_IMAGE_URL, item.getImageURL());
+		args.putString(DetailsFragment.KEY_NAME, item.getName());
+		args.putString(DetailsFragment.KEY_SCREEN_NAME, item.getScreenName());
+		args.putString(DetailsFragment.KEY_STATUS, item.getStatus());
+		args.putString(DetailsFragment.KEY_DATE, item.getDate());
+		
+		FragmentManager fm = getFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
+		
+		DetailsFragment detailsFragment = new DetailsFragment();
+		detailsFragment.setArguments(args);
+		
+		if (getActivity().findViewById(R.id.details_container) != null) {//landscape mode
+			ft.replace(R.id.details_container, detailsFragment);
+		}
+		else {//portrait mode
+			ft.replace(R.id.timeline_container, detailsFragment);
+			ft.addToBackStack(null);
+		}
+		
+		ft.commit();
 	}
 	
 	class LoadStatusTask extends AsyncTask<Void, Void, ArrayList<TweetStatus>> {
@@ -138,9 +164,6 @@ public class TimelineFragment extends Fragment {
 		protected void onPostExecute(ArrayList<TweetStatus> result) {
 			
 			if (getActivity() != null && result != null) {
-				Log.v("LoadStatusTask", "onPostExecute() result size: "+result.size());
-				statusList = result;
-				Log.v("LoadStatusTask", "onPostExecute() statusList size: "+statusList.size());
 				mStatusAdapter.setStatusList(result);
 				mStatusAdapter.notifyDataSetChanged();
 			}

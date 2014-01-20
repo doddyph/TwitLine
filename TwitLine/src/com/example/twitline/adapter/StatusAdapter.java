@@ -21,10 +21,14 @@ public class StatusAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private ImageLoader imageLoader;
 	
-	public StatusAdapter(Context context, ArrayList<TweetStatus> statusList) {
-		this.statusList = statusList;
+	public StatusAdapter(Context context) {
 		inflater = LayoutInflater.from(context);
 		imageLoader = new ImageLoader(context);
+	}
+	
+	public StatusAdapter(Context context, ArrayList<TweetStatus> statusList) {
+		this(context);
+		this.statusList = statusList;
 	}
 	
 	public void setStatusList(ArrayList<TweetStatus> statusList) {

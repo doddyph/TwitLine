@@ -26,6 +26,7 @@ public class TwitLineService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
+		getContentResolver().delete(TwitLineContentProvider.INFO_URI, null, null);
 		new LoadTweetTask().execute();
 	}
 

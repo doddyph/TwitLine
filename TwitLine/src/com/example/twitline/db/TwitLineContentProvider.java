@@ -35,9 +35,23 @@ public class TwitLineContentProvider extends ContentProvider {
 	}
 
 	@Override
-	public int delete(Uri arg0, String arg1, String[] arg2) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		int count = 0;
+		
+		switch (uriMatcher.match(uri)) {
+		case INFO_LIST:
+			if (selection == null && selectionArgs == null) {
+				count = db.delete(INFO_TABLE, null, null);
+			}
+			break;
+
+		default:
+			break;
+		}
+		
+		return count;
 	}
 
 	@Override
@@ -54,7 +68,6 @@ public class TwitLineContentProvider extends ContentProvider {
 		switch (uriMatcher.match(uri)) {
 		case INFO_LIST:
 			db.insert(INFO_TABLE, null, values);
-
 			break;
 
 		default:

@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.widget.ImageView;
 
 public class ImageLoader {
@@ -52,7 +51,6 @@ public class ImageLoader {
 	}
         
 	private void queuePhoto(String url, ImageView imageView) {
-		Log.v("ImageLoader.queuePhoto()", "imageViews put key: "+imageView+" value: "+url);
 		imageViews.put(imageView, url);
 		
 		PhotoToLoad p = new PhotoToLoad(url, imageView);
@@ -87,24 +85,19 @@ public class ImageLoader {
 		@Override
 		public void run() {
 			if (imageViewReused(photoToLoad)) {
-				Log.v("PhotosLoader.run()", "#1 imageViewReused");
 				return;
 			}
 			
 			Bitmap bmp = getBitmap(photoToLoad.url);
-			Log.v("PhotosLoader.run()", "bitmap: " + bmp);
 			memoryCache.put(photoToLoad.url, bmp);
 			
 			if (imageViewReused(photoToLoad)) {
-				Log.v("PhotosLoader.run()", "#2 imageViewReused");
 				return;
 			}
 			
 			BitmapDisplayer bd = new BitmapDisplayer(bmp, photoToLoad);
-			Log.v("PhotosLoader.run()", "BitmapDisplayer: "+bd);
 			Activity a = (Activity) context;
 //			Activity a = (Activity) photoToLoad.imageView.getContext();
-			Log.v("PhotosLoader.run()", "Activity: "+a);
 			a.runOnUiThread(bd);
 		}
 	}
@@ -115,7 +108,6 @@ public class ImageLoader {
 		// from SD cache
 		Bitmap b = decodeFile(f);
 		if (b != null) {
-			Log.v("ImageLoader.getBitmap()", "[from SD cache] bitmap: "+b);
 			return b;
 		}
         
@@ -132,11 +124,9 @@ public class ImageLoader {
 			Utils.CopyStream(is, os);
 			os.close();
 			bitmap = decodeFile(f);
-			Log.v("ImageLoader.getBitmap()", "[from web] bitmap: "+bitmap);
 			return bitmap;
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			Log.v("ImageLoader.getBitmap()", "null");
 			return null;
 		}
     }
@@ -182,11 +172,9 @@ public class ImageLoader {
 
 		public void run() {
 			if (imageViewReused(photoToLoad)) {
-				Log.v("BitmapDisplayer.run()", "imageViewReused");
 				return;
 			}
 			
-			Log.v("BitmapDisplayer.run()", "bitmap: "+bitmap);
 			if (bitmap != null)
 				photoToLoad.imageView.setImageBitmap(bitmap);
 			else

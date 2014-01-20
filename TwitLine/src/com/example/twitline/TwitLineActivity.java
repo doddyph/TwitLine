@@ -1,7 +1,5 @@
 package com.example.twitline;
 
-import com.example.twitline.service.TwitLineService;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -50,9 +48,6 @@ public class TwitLineActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		registerReceiver(receiver, new IntentFilter("TwitLine"));
-		
-		Intent i = new Intent(this, TwitLineService.class);
-		startService(i);
 	}
 	
 	@Override

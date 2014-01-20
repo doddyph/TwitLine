@@ -1,6 +1,6 @@
 package com.example.twitline.adapter;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import com.example.twitline.R;
 import com.example.twitline.cache.ImageLoader;
@@ -17,17 +17,17 @@ import android.widget.TextView;
 
 public class StatusAdapter extends BaseAdapter {
 	
-	private List<TweetStatus> statusList;
+	private ArrayList<TweetStatus> statusList;
 	private LayoutInflater inflater;
 	private ImageLoader imageLoader;
 	
-	public StatusAdapter(Context context, List<TweetStatus> statusList) {
+	public StatusAdapter(Context context, ArrayList<TweetStatus> statusList) {
 		this.statusList = statusList;
 		inflater = LayoutInflater.from(context);
 		imageLoader = new ImageLoader(context);
 	}
 	
-	public void setStatusList(List<TweetStatus> statusList) {
+	public void setStatusList(ArrayList<TweetStatus> statusList) {
 		this.statusList = statusList;
 	}
 	

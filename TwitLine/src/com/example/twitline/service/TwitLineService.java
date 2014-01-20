@@ -17,7 +17,6 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class TwitLineService extends IntentService {
 
@@ -35,7 +34,7 @@ public class TwitLineService extends IntentService {
 		@Override
 		protected List<TweetStatus> doInBackground(Void... params) {
 			
-			List<TweetStatus> tweetStatusList = new ArrayList<TweetStatus>();
+			List<TweetStatus> statusList = new ArrayList<TweetStatus>();
 			TweetStatus tweetStatus = null;
 			
 			try {
@@ -50,7 +49,7 @@ public class TwitLineService extends IntentService {
 							status.getText(), 
 							Utils.getFormattedDate(status.getCreatedAt()));
 					
-					tweetStatusList.add(tweetStatus);
+					statusList.add(tweetStatus);
 				}
 			} catch (Exception e) {
 				tweetStatus = new TweetStatus(
@@ -58,10 +57,10 @@ public class TwitLineService extends IntentService {
 						"Twitter query failed: "+e.getMessage(), 
 						"");
 				
-				tweetStatusList.add(tweetStatus);
+				statusList.add(tweetStatus);
 			}
 			
-			return tweetStatusList;
+			return statusList;
 		}
 		
 		@Override
@@ -73,7 +72,7 @@ public class TwitLineService extends IntentService {
 				int i = 0;
 				
 				for (TweetStatus tweetStatus : result) {
-					values[i] = generateTweetStatus(tweetStatus);
+					values[i] = generateStatus(tweetStatus);
 					i++;
 				}
 				
@@ -100,27 +99,22 @@ public class TwitLineService extends IntentService {
 			return twitter;
 		}
 		
-		private ContentValues generateTweetStatus(TweetStatus tweetStatus) {
+		private ContentValues generateStatus(TweetStatus tweetStatus) {
 			ContentValues values = new ContentValues();
 			
 			String imageURL = tweetStatus.getImageURL();
-			Log.v("generateTweetStatus()", "imageURL: " + imageURL);
 			values.put("imageurl", imageURL);
 			
 			String name = tweetStatus.getName();
-			Log.v("generateTweetStatus()", "name: " + name);
 			values.put("name", name);
 			
 			String screenName = tweetStatus.getScreenName();
-			Log.v("generateTweetStatus()", "screenName: " + screenName);
 			values.put("screenname", screenName);
 			
 			String status = tweetStatus.getStatus();
-			Log.v("generateTweetStatus()", "status: " + status);
 			values.put("status", status);
 			
 			String date = tweetStatus.getDate();
-			Log.v("generateTweetStatus()", "date: " + date);
 			values.put("date", date);
 			
 			return values;

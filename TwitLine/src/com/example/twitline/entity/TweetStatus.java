@@ -1,6 +1,8 @@
 package com.example.twitline.entity;
 
-public class TweetStatus {
+import java.io.Serializable;
+
+public class TweetStatus implements Serializable {
 
 	private String mImageURL;
 	private String mName;

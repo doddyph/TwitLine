@@ -106,6 +106,7 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 	@Override
 	public void onItemClick(AdapterView<?> a, View v, int position, long id) {
 		
+		TwitLineActivity.TWITLINE_POS = position;
 		TweetStatus item = (TweetStatus) mListView.getItemAtPosition(position);
 		
 		Bundle args = new Bundle();
@@ -114,6 +115,7 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 		args.putString(DetailsFragment.KEY_SCREEN_NAME, item.getScreenName());
 		args.putString(DetailsFragment.KEY_STATUS, item.getStatus());
 		args.putString(DetailsFragment.KEY_DATE, item.getDate());
+		TwitLineActivity.DETAIL_ARGS = args;
 		
 		FragmentManager fm = getFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
@@ -166,6 +168,7 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 			if (getActivity() != null && result != null) {
 				mStatusAdapter.setStatusList(result);
 				mStatusAdapter.notifyDataSetChanged();
+				mListView.setSelection(TwitLineActivity.TWITLINE_POS);
 			}
 		}
 	}

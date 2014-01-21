@@ -18,6 +18,9 @@ public class TwitLineActivity extends Activity {
 	private TimelineFragment mTimelineFragment;
 	private DetailsFragment mDetailsFragment;
 	
+	public static int TWITLINE_POS = 0;
+	public static Bundle DETAIL_ARGS = null;
+	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		
 		@Override
@@ -26,7 +29,6 @@ public class TwitLineActivity extends Activity {
 			boolean success = extras.getBoolean("result");
 			
 			if (success) {
-//				Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
 				mTimelineFragment.setProgressBarVisibility(View.GONE);
 				mTimelineFragment.loadStatus();
 			}
@@ -49,7 +51,10 @@ public class TwitLineActivity extends Activity {
 	protected void onStop() {
 		super.onStop();
 		unregisterReceiver(receiver);
+		
 		TwitLineService.SERVIVE_STATE = TwitLineService.STATE_INIT;
+		TWITLINE_POS = 0;
+		DETAIL_ARGS = null;
 	}
 	
 	@Override
@@ -64,12 +69,18 @@ public class TwitLineActivity extends Activity {
 		FragmentManager fm = getFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 		
+		if (fm.getBackStackEntryCount() > 0) {
+			fm.popBackStack();
+		}
 		
 		if (findViewById(R.id.details_container) != null) {//landscape mode
 			mTimelineFragment = new TimelineFragment();
 			ft.replace(R.id.timeline_container, mTimelineFragment);
 			
 			mDetailsFragment = new DetailsFragment();
+			if (DETAIL_ARGS != null) {
+				mDetailsFragment.setArguments(DETAIL_ARGS);
+			}
 			ft.replace(R.id.details_container, mDetailsFragment);
 		}
 		else {//portrait mode

@@ -29,7 +29,12 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 	
 	private StatusAdapter mStatusAdapter;
 	private ListView mListView;
+	private MenuItem mRefreshMenu;
 	private ProgressBar mProgressBar;
+	
+	private static final int STATE_ACTION_BAR 	= 1;
+	private static final int STATE_LAYOUT 		= 2;
+	private int progressbarstate = STATE_LAYOUT;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,32 +59,17 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 		return view;
 	}
 	
-//	@Override
-//	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//		super.onCreateOptionsMenu(menu, inflater);
-//		inflater.inflate(R.menu.main, menu);
-//	}
-	
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//		
-//		switch (item.getItemId()) {
-//		case R.id.menu_refresh:
-//			startService();
-//			return true;
-//
-//		default:
-//			break;
-//		}
-//		
-//		return super.onOptionsItemSelected(item);
-//	}
-	
 	@Override
 	public void onResume() {
 		super.onResume();
-		
 		loadStatus();
+		
+		if (mRefreshMenu == null) {
+			progressbarstate = STATE_LAYOUT;
+		}
+		else {
+			progressbarstate = STATE_ACTION_BAR;
+		}
 		
 		switch (TwitLineService.SERVICE_STATE) {
 		case TwitLineService.STATE_INIT:
@@ -89,18 +79,69 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 		}
 	}
 	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.timeline, menu);
+		setRefreshMenuIdentifier(menu.findItem(R.id.menu_refresh));
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_refresh:
+			startService();
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
+	public void setRefreshMenuIdentifier(MenuItem menuItem) {
+		mRefreshMenu = menuItem;
+	}
+	
+	public void showProgressBar() {
+		switch (progressbarstate) {
+		case STATE_LAYOUT:
+			mProgressBar.setVisibility(View.VISIBLE);
+			break;
+		case STATE_ACTION_BAR:
+			if (mRefreshMenu != null) {
+				mRefreshMenu.setActionView(R.layout.progressbar);
+				mRefreshMenu.expandActionView();
+			}
+			break;
+		}
+	}
+	
+	public void hideProgressBar() {
+		switch (progressbarstate) {
+		case STATE_LAYOUT:
+			mProgressBar.setVisibility(View.GONE);
+			break;
+		case STATE_ACTION_BAR:
+			if (mRefreshMenu != null) {
+				mRefreshMenu.collapseActionView();
+				mRefreshMenu.setActionView(null);
+			}
+			break;
+		}
+		updateProgressBarState();
+	}
+	
+	private void updateProgressBarState() {
+		if (mRefreshMenu == null) {
+			progressbarstate = STATE_LAYOUT;
+		}
+		else {
+			progressbarstate = STATE_ACTION_BAR;
+		}
+	}
+
 	private void startService() {
 		Intent i = new Intent(getActivity(), TwitLineService.class);
 		getActivity().startService(i);
-		setProgressBarVisibility(View.VISIBLE);
-	}
-	
-	public void setProgressBarVisibility(int visible) {
-		mProgressBar.setVisibility(visible);
-	}
-	
-	public void loadStatus() {
-		new LoadStatusTask().execute();
+		showProgressBar();
 	}
 	
 	@Override
@@ -132,6 +173,10 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 		}
 		
 		ft.commit();
+	}
+	
+	public void loadStatus() {
+		new LoadStatusTask().execute();
 	}
 	
 	class LoadStatusTask extends AsyncTask<Void, Void, ArrayList<TweetStatus>> {

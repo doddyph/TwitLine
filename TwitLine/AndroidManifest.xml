@@ -28,6 +28,14 @@
             
         </activity>
         
+        <activity 
+            android:name="com.example.twitline.NotificationActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:excludeFromRecents="true">
+            
+        </activity>
+        
         <service android:name="com.example.twitline.service.TwitLineService"></service>
         
         <provider android:name="com.example.twitline.db.TwitLineContentProvider"

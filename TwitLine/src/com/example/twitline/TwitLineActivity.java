@@ -3,6 +3,8 @@ package com.example.twitline;
 import com.example.twitline.service.TwitLineService;
 
 import android.os.Bundle;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,10 +12,11 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.Toast;
 
 public class TwitLineActivity extends ActionBarActivity {
 	
@@ -31,7 +34,7 @@ public class TwitLineActivity extends ActionBarActivity {
 			boolean success = extras.getBoolean("result");
 			
 			if (success) {
-				mTimelineFragment.setProgressBarVisibility(View.GONE);
+				mTimelineFragment.hideProgressBar();
 				mTimelineFragment.loadStatus();
 			}
 		}
@@ -62,25 +65,55 @@ public class TwitLineActivity extends ActionBarActivity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.activity_main, menu);
+		return true;
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		
 		switch (item.getItemId()) {
-		case R.id.menu_refresh:
-			Intent i = new Intent(this, TwitLineService.class);
-			startService(i);
-			mTimelineFragment.setProgressBarVisibility(View.VISIBLE);
+		case R.id.menu_about:
+			// TODO
+			createNotification();
+//			Toast.makeText(getApplicationContext(), "About", Toast.LENGTH_SHORT).show();
 			return true;
-
-		default:
-			break;
+		case R.id.menu_settings:
+			// TODO
+			Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
+			return true;
 		}
-		
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private void createNotification() {
+		
+		String contentTitle = "Test Notification";
+		String contentText = "Hello Notification !!";
+		
+		Bundle extras = new Bundle();
+		extras.putString("title", contentTitle);
+		extras.putString("text", contentText);
+		
+		Intent notifIntent = new Intent(this, NotificationActivity.class);
+		notifIntent.putExtras(extras);
+		notifIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+				Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		
+		PendingIntent pendingIntent = PendingIntent.getActivity(
+				this, 
+				0, 
+				notifIntent, 
+				PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+				.setContentIntent(pendingIntent)
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setContentTitle(contentTitle)
+				.setContentText(contentText)
+				.setAutoCancel(true);
+		
+		NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notifManager.notify(0, builder.build());
 	}
 	
 	@Override
@@ -116,5 +149,5 @@ public class TwitLineActivity extends ActionBarActivity {
 		
 		ft.commit();
 	}
-
+	
 }

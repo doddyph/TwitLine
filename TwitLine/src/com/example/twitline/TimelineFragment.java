@@ -7,13 +7,13 @@ import com.example.twitline.db.TwitLineContentProvider;
 import com.example.twitline.entity.TweetStatus;
 import com.example.twitline.service.TwitLineService;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -54,26 +54,26 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 		return view;
 	}
 	
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.main, menu);
-	}
+//	@Override
+//	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//		super.onCreateOptionsMenu(menu, inflater);
+//		inflater.inflate(R.menu.main, menu);
+//	}
 	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		
-		switch (item.getItemId()) {
-		case R.id.menu_refresh:
-			startService();
-			return true;
-
-		default:
-			break;
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
+//	@Override
+//	public boolean onOptionsItemSelected(MenuItem item) {
+//		
+//		switch (item.getItemId()) {
+//		case R.id.menu_refresh:
+//			startService();
+//			return true;
+//
+//		default:
+//			break;
+//		}
+//		
+//		return super.onOptionsItemSelected(item);
+//	}
 	
 	@Override
 	public void onResume() {
@@ -81,7 +81,7 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 		
 		loadStatus();
 		
-		switch (TwitLineService.SERVIVE_STATE) {
+		switch (TwitLineService.SERVICE_STATE) {
 		case TwitLineService.STATE_INIT:
 		case TwitLineService.STATE_FAILED:
 			startService();
@@ -106,7 +106,7 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 	@Override
 	public void onItemClick(AdapterView<?> a, View v, int position, long id) {
 		
-		TwitLineActivity.TWITLINE_POS = position;
+		TwitLineActivity.CURRENT_POS = position;
 		TweetStatus item = (TweetStatus) mListView.getItemAtPosition(position);
 		
 		Bundle args = new Bundle();
@@ -168,7 +168,8 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 			if (getActivity() != null && result != null) {
 				mStatusAdapter.setStatusList(result);
 				mStatusAdapter.notifyDataSetChanged();
-				mListView.setSelection(TwitLineActivity.TWITLINE_POS);
+				mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+				mListView.setItemChecked(TwitLineActivity.CURRENT_POS, true);
 			}
 		}
 	}

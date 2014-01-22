@@ -3,22 +3,24 @@ package com.example.twitline;
 import com.example.twitline.service.TwitLineService;
 
 import android.os.Bundle;
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
-public class TwitLineActivity extends Activity {
+public class TwitLineActivity extends ActionBarActivity {
 	
 	private TimelineFragment mTimelineFragment;
 	private DetailsFragment mDetailsFragment;
 	
-	public static int TWITLINE_POS = 0;
+	public static int CURRENT_POS = 0;
 	public static Bundle DETAIL_ARGS = null;
 	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -39,6 +41,7 @@ public class TwitLineActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView();
+		
 	}
 	
 	@Override
@@ -52,9 +55,32 @@ public class TwitLineActivity extends Activity {
 		super.onStop();
 		unregisterReceiver(receiver);
 		
-		TwitLineService.SERVIVE_STATE = TwitLineService.STATE_INIT;
-		TWITLINE_POS = 0;
+		TwitLineService.SERVICE_STATE = TwitLineService.STATE_INIT;
+		CURRENT_POS = 0;
 		DETAIL_ARGS = null;
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		switch (item.getItemId()) {
+		case R.id.menu_refresh:
+			Intent i = new Intent(this, TwitLineService.class);
+			startService(i);
+			mTimelineFragment.setProgressBarVisibility(View.VISIBLE);
+			return true;
+
+		default:
+			break;
+		}
+		
+		return super.onOptionsItemSelected(item);
 	}
 	
 	@Override
@@ -66,7 +92,7 @@ public class TwitLineActivity extends Activity {
 	private void setContentView() {
 		setContentView(R.layout.activity_main);
 		
-		FragmentManager fm = getFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 		
 		if (fm.getBackStackEntryCount() > 0) {

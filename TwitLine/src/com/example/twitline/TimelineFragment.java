@@ -1,19 +1,18 @@
 package com.example.twitline;
 
-import java.util.ArrayList;
-
-import com.example.twitline.adapter.StatusAdapter;
+import com.example.twitline.adapter.StatusAdapter2;
 import com.example.twitline.db.TwitLineContentProvider;
-import com.example.twitline.entity.TweetStatus;
 import com.example.twitline.service.TwitLineService;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,9 +24,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-public class TimelineFragment extends Fragment implements OnItemClickListener {
+public class TimelineFragment extends Fragment implements OnItemClickListener, LoaderCallbacks<Cursor> {
 	
-	private StatusAdapter mStatusAdapter;
+//	private StatusAdapter mStatusAdapter;
+	private StatusAdapter2 mStatusAdapter2;
 	private ListView mListView;
 	private MenuItem mRefreshMenu;
 	private ProgressBar mProgressBar;
@@ -36,10 +36,12 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 	private static final int STATE_LAYOUT 		= 2;
 	private int progressbarstate = STATE_LAYOUT;
 	
+	private boolean init = false;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		init = false;
 	}
 
 	@Override
@@ -53,8 +55,10 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 		mProgressBar = (ProgressBar) view.findViewById(R.id.progressbar); 
 		
 		mListView.setOnItemClickListener(this);
-		mStatusAdapter = new StatusAdapter(getActivity());
-		mListView.setAdapter(mStatusAdapter);
+//		mStatusAdapter = new StatusAdapter(getActivity());
+		mStatusAdapter2 = new StatusAdapter2(getActivity());
+//		mListView.setAdapter(mStatusAdapter);
+		mListView.setAdapter(mStatusAdapter2);
 		
 		return view;
 	}
@@ -148,14 +152,22 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 	public void onItemClick(AdapterView<?> a, View v, int position, long id) {
 		
 		TwitLineActivity.CURRENT_POS = position;
-		TweetStatus item = (TweetStatus) mListView.getItemAtPosition(position);
+		Cursor cursor = (Cursor) mStatusAdapter2.getItem(position);
+//		TweetStatus item = (TweetStatus) mListView.getItemAtPosition(position);
 		
 		Bundle args = new Bundle();
+		args.putString(DetailsFragment.KEY_IMAGE_URL, cursor.getString(cursor.getColumnIndex("imageurl")));
+		args.putString(DetailsFragment.KEY_NAME, cursor.getString(cursor.getColumnIndex("name")));
+		args.putString(DetailsFragment.KEY_SCREEN_NAME, cursor.getString(cursor.getColumnIndex("screenname")));
+		args.putString(DetailsFragment.KEY_STATUS, cursor.getString(cursor.getColumnIndex("status")));
+		args.putString(DetailsFragment.KEY_DATE, cursor.getString(cursor.getColumnIndex("date")));
+		/*
 		args.putString(DetailsFragment.KEY_IMAGE_URL, item.getImageURL());
 		args.putString(DetailsFragment.KEY_NAME, item.getName());
 		args.putString(DetailsFragment.KEY_SCREEN_NAME, item.getScreenName());
 		args.putString(DetailsFragment.KEY_STATUS, item.getStatus());
 		args.putString(DetailsFragment.KEY_DATE, item.getDate());
+		*/
 		TwitLineActivity.DETAIL_ARGS = args;
 		
 		FragmentManager fm = getFragmentManager();
@@ -176,9 +188,17 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 	}
 	
 	public void loadStatus() {
-		new LoadStatusTask().execute();
+//		new LoadStatusTask().execute();
+		if (init == false) {
+			getLoaderManager().initLoader(0, null, this);
+			init = true;
+		}
+		else {
+			getLoaderManager().restartLoader(0, null, this);
+		}
 	}
 	
+	/*
 	class LoadStatusTask extends AsyncTask<Void, Void, ArrayList<TweetStatus>> {
 		
 		@Override
@@ -217,6 +237,29 @@ public class TimelineFragment extends Fragment implements OnItemClickListener {
 				mListView.setItemChecked(TwitLineActivity.CURRENT_POS, true);
 			}
 		}
+	}
+	*/
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		CursorLoader cursorLoader = new CursorLoader(
+				getActivity(), 
+				TwitLineContentProvider.INFO_URI, 
+				null, 
+				null, 
+				null, 
+				null);
+		return cursorLoader;
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		mStatusAdapter2.swapCursor(cursor);
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		mStatusAdapter2.swapCursor(null);
 	}
 	
 }

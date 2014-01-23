@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
 
-public class BackgroundDownloadScheduler extends BroadcastReceiver {
+public class GetTweetScheduler extends BroadcastReceiver {
 	
 	private AlarmManager alarmManager;
 	private PendingIntent pendingIntent;
@@ -22,7 +22,7 @@ public class BackgroundDownloadScheduler extends BroadcastReceiver {
 	}
 	
 	public void set(Context context, long intervalMillis) {
-		Intent intent = new Intent(context, BackgroundDownloadScheduler.class);
+		Intent intent = new Intent(context, GetTweetScheduler.class);
 		pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
 		
 		alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

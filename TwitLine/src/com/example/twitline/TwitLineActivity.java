@@ -1,7 +1,7 @@
 package com.example.twitline;
 
 import com.example.twitline.service.TwitLineService;
-import com.example.twitline.util.BackgroundDownloadScheduler;
+import com.example.twitline.util.GetTweetScheduler;
 
 import android.os.Bundle;
 import android.app.NotificationManager;
@@ -15,7 +15,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -23,7 +22,7 @@ public class TwitLineActivity extends ActionBarActivity {
 	
 	private TimelineFragment mTimelineFragment;
 	private DetailsFragment mDetailsFragment;
-	private BackgroundDownloadScheduler downloadScheduler;
+	private GetTweetScheduler getTweetScheduler;
 	
 	public static int CURRENT_POS = 0;
 	public static Bundle DETAIL_ARGS = null;
@@ -32,7 +31,6 @@ public class TwitLineActivity extends ActionBarActivity {
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.v("BroadcastReceiver", "onReceive()");
 			Bundle extras = intent.getExtras();
 			
 			if (extras.containsKey("result")) {
@@ -43,7 +41,6 @@ public class TwitLineActivity extends ActionBarActivity {
 				}
 			}
 			else if (extras.containsKey("scheduler")) {
-				Log.v("BroadcastReceiver.onReceive()", "Updated new timeline from scheduler");
 //				boolean scheduler = extras.getBoolean("scheduler");
 //				if (scheduler) {
 //					createNotification(0, "TwitLine Notification", "Updated timeline.");
@@ -56,7 +53,7 @@ public class TwitLineActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView();
-		downloadScheduler = new BackgroundDownloadScheduler();
+		getTweetScheduler = new GetTweetScheduler();
 	}
 	
 	@Override
@@ -91,11 +88,11 @@ public class TwitLineActivity extends ActionBarActivity {
 			return true;
 		case R.id.menu_set_schedule:
 			// TODO
-			downloadScheduler.set(getApplicationContext(), 1000 * 60);//1 minute
+			getTweetScheduler.set(getApplicationContext(), 1000 * 60 * 30);//every 30 minutes
 //			Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
 			return true;
 		case R.id.menu_cancel_schedule:
-			downloadScheduler.cancel(getApplicationContext());
+			getTweetScheduler.cancel(getApplicationContext());
 			return true;
 		}
 		

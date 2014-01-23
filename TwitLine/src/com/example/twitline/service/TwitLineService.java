@@ -17,6 +17,7 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class TwitLineService extends IntentService {
 	
@@ -34,6 +35,7 @@ public class TwitLineService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		getContentResolver().delete(TwitLineContentProvider.INFO_URI, null, null);
 		SERVICE_STATE = STATE_INIT;
+		Log.v("TwitLineService", "onHandleIntent() execute task ");
 		new LoadTweetTask().execute();
 	}
 
@@ -94,8 +96,10 @@ public class TwitLineService extends IntentService {
 				success = true;
 			}
 			
+			Log.v("LoadTweetTask", "onPostExecute() success: "+success);
 			if (success) {
 				SERVICE_STATE = STATE_SUCCESS;
+				Log.v("LoadTweetTask", "onPostExecute() sendBroadcast");
 				sendBroadcast(new Intent("TwitLine").putExtra("result", true));
 			}
 			else {

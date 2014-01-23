@@ -43,6 +43,8 @@
             android:exported="false" >
         </provider>
         
+        <receiver android:name="com.example.twitline.util.BackgroundDownloadScheduler"></receiver>
+        
     </application>
 
 </manifest>

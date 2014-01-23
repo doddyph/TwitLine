@@ -189,6 +189,7 @@ public class TimelineFragment extends Fragment implements OnItemClickListener, L
 	
 	public void loadStatus() {
 //		new LoadStatusTask().execute();
+		// TODO
 		if (init == false) {
 			getLoaderManager().initLoader(0, null, this);
 			init = true;
@@ -254,12 +255,19 @@ public class TimelineFragment extends Fragment implements OnItemClickListener, L
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		mStatusAdapter2.swapCursor(cursor);
+		if (mStatusAdapter2 != null && cursor != null) {
+			mStatusAdapter2.swapCursor(cursor);
+//			mStatusAdapter2.notifyDataSetChanged();
+//			mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+//			mListView.setItemChecked(TwitLineActivity.CURRENT_POS, true);
+		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		mStatusAdapter2.swapCursor(null);
+	public void onLoaderReset(Loader<Cursor> cursor) {
+		if (mStatusAdapter2 != null) {
+			mStatusAdapter2.swapCursor(null);
+		}
 	}
 	
 }

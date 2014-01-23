@@ -1,6 +1,7 @@
 package com.example.twitline;
 
 import com.example.twitline.service.TwitLineService;
+import com.example.twitline.util.BackgroundDownloadScheduler;
 
 import android.os.Bundle;
 import android.app.NotificationManager;
@@ -14,14 +15,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class TwitLineActivity extends ActionBarActivity {
 	
 	private TimelineFragment mTimelineFragment;
 	private DetailsFragment mDetailsFragment;
+	private BackgroundDownloadScheduler downloadScheduler;
 	
 	public static int CURRENT_POS = 0;
 	public static Bundle DETAIL_ARGS = null;
@@ -30,12 +32,22 @@ public class TwitLineActivity extends ActionBarActivity {
 		
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			Log.v("BroadcastReceiver", "onReceive()");
 			Bundle extras = intent.getExtras();
-			boolean success = extras.getBoolean("result");
 			
-			if (success) {
-				mTimelineFragment.hideProgressBar();
-				mTimelineFragment.loadStatus();
+			if (extras.containsKey("result")) {
+				boolean result = extras.getBoolean("result");
+				if (result) {
+					mTimelineFragment.hideProgressBar();
+					mTimelineFragment.loadStatus();
+				}
+			}
+			else if (extras.containsKey("scheduler")) {
+				Log.v("BroadcastReceiver.onReceive()", "Updated new timeline from scheduler");
+//				boolean scheduler = extras.getBoolean("scheduler");
+//				if (scheduler) {
+//					createNotification(0, "TwitLine Notification", "Updated timeline.");
+//				}
 			}
 		}
 	};
@@ -44,7 +56,7 @@ public class TwitLineActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView();
-		
+		downloadScheduler = new BackgroundDownloadScheduler();
 	}
 	
 	@Override
@@ -74,25 +86,27 @@ public class TwitLineActivity extends ActionBarActivity {
 		switch (item.getItemId()) {
 		case R.id.menu_about:
 			// TODO
-			createNotification();
+			createNotification(0, "TwitLine Notification", "About");
 //			Toast.makeText(getApplicationContext(), "About", Toast.LENGTH_SHORT).show();
 			return true;
-		case R.id.menu_settings:
+		case R.id.menu_set_schedule:
 			// TODO
-			Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
+			downloadScheduler.set(getApplicationContext(), 1000 * 60);//1 minute
+//			Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
+			return true;
+		case R.id.menu_cancel_schedule:
+			downloadScheduler.cancel(getApplicationContext());
 			return true;
 		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 	
-	private void createNotification() {
-		
-		String contentTitle = "Test Notification";
-		String contentText = "Hello Notification !!";
+	private void createNotification(int id, String title, String text) {
 		
 		Bundle extras = new Bundle();
-		extras.putString("title", contentTitle);
-		extras.putString("text", contentText);
+		extras.putString("title", title);
+		extras.putString("text", text);
 		
 		Intent notifIntent = new Intent(this, NotificationActivity.class);
 		notifIntent.putExtras(extras);
@@ -108,12 +122,12 @@ public class TwitLineActivity extends ActionBarActivity {
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
 				.setContentIntent(pendingIntent)
 				.setSmallIcon(R.drawable.ic_launcher)
-				.setContentTitle(contentTitle)
-				.setContentText(contentText)
+				.setContentTitle(title)
+				.setContentText(text)
 				.setAutoCancel(true);
 		
 		NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notifManager.notify(0, builder.build());
+		notifManager.notify(id, builder.build());
 	}
 	
 	@Override

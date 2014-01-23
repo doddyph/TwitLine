@@ -1036,8 +1036,9 @@ containing a value of this type.
         public static final int list_item=0x7f050029;
         public static final int listview=0x7f050049;
         public static final int menu_about=0x7f05004b;
-        public static final int menu_refresh=0x7f05004d;
-        public static final int menu_settings=0x7f05004c;
+        public static final int menu_cancel_schedule=0x7f05004d;
+        public static final int menu_refresh=0x7f05004e;
+        public static final int menu_set_schedule=0x7f05004c;
         public static final int middle=0x7f050012;
         public static final int never=0x7f050009;
         public static final int none=0x7f050010;
@@ -1176,14 +1177,15 @@ containing a value of this type.
          */
         public static final int abc_shareactionprovider_share_with_application=0x7f0a000b;
         public static final int action_about=0x7f0a000f;
+        public static final int action_cancel_schedule=0x7f0a0011;
         public static final int action_refresh=0x7f0a000e;
-        public static final int action_settings=0x7f0a0010;
+        public static final int action_set_schedule=0x7f0a0010;
         public static final int app_name=0x7f0a000d;
-        public static final int hello_world=0x7f0a0011;
-        public static final int twitter_access_token=0x7f0a0014;
-        public static final int twitter_access_token_secret=0x7f0a0015;
-        public static final int twitter_consumer_key=0x7f0a0012;
-        public static final int twitter_consumer_secret=0x7f0a0013;
+        public static final int hello_world=0x7f0a0012;
+        public static final int twitter_access_token=0x7f0a0015;
+        public static final int twitter_access_token_secret=0x7f0a0016;
+        public static final int twitter_consumer_key=0x7f0a0013;
+        public static final int twitter_consumer_secret=0x7f0a0014;
     }
     public static final class style {
         /** 
